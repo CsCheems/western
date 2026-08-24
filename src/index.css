@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+
+/* Paleta western sobre la estructura del design system Industry.
+   El verde salvia #6D7266 del sistema original queda fuera a propósito: con
+   texto pequeño da 3.4-3.9:1 y falla AA. En papel se usa `stone`, en oscuro
+   `sand`. Mantener ese criterio al añadir colores. */
+@theme {
+  --color-ink: #1e1b17;
+  --color-panel: #26221c;
+  --color-rail: #4b2e20;
+  --color-paper: #ede3d2;
+  --color-plate: #e0d2b8;
+  --color-gold: #e6b442;
+  --color-rust: #d24a22;
+  --color-barn: #8b1e1e;
+  --color-leather: #8c5a3a;
+  --color-buck: #c7a06a;
+  --color-sand: #a39884;
+  --color-stone: #5c5a4e;
+  --color-dust: #c7bba4;
+  --color-bone: #f6e7ce;
+  --color-notice: #edd9b0;
+
+  --font-display: 'Rye', serif;
+  --font-sans:
+    Bahnschrift, 'Bahnschrift SemiCondensed', 'DIN Alternate',
+    'Barlow Semi Condensed', sans-serif;
+
+  --text-h1: clamp(38px, 4.6vw, 68px);
+  --text-h1--line-height: 1.06;
+  --text-h2: clamp(28px, 3vw, 44px);
+  --text-h2--line-height: 1.08;
+  --text-h3: clamp(26px, 2.6vw, 38px);
+  --text-h3--line-height: 1.1;
+  --text-wordmark: clamp(13px, 1.05vw, 17px);
+  --text-wordmark--line-height: 1.2;
+
+  --spacing-gutter: clamp(20px, 4vw, 56px);
+  --container-shell: 1360px;
+
+  --tracking-kicker: 0.24em;
+  --tracking-label: 0.2em;
+  --tracking-wide: 0.18em;
+
+  --ease-track: cubic-bezier(0.55, 0.05, 0.25, 1);
+}
+
+@layer base {
+  body {
+    @apply bg-ink text-paper font-sans;
+    text-wrap: pretty;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Radio 0 en todo — regla del design system. La jerarquía se construye con
+     bordes de 1px y marcas de registro, nunca con esquinas o sombras. */
+  button,
+  input {
+    border-radius: 0;
+  }
+
+  ::selection {
+    background: rgb(230 180 66 / 0.35);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
