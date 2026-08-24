@@ -3,19 +3,15 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 const DURATION = 800
 const EASE = `transform ${DURATION}ms cubic-bezier(.55,.05,.25,1)`
 
-// El orden de montaje es [0, n-1, n-2, … 1]: el primer panel al frente y el
-// resto invertidos detrás. Con esa disposición, mover el último hijo al frente
-// en cada paso hace que la secuencia lógica lea 0 → 1 → 2 → 0 mientras la
-// película siempre viaja hacia la derecha. Para n = 2 se reduce a [0, 1].
-const initialOrder = (count) => [
-  0,
-  ...Array.from({ length: count - 1 }, (_, i) => count - 1 - i),
-]
+// El orden de montaje es el natural [0, 1, … n-1] y se mantiene rotado para que
+// `order[k]` sea siempre el panel `(index + k) % count`: el actual al frente y
+// el siguiente justo detrás, listo para entrar desde la derecha.
+const initialOrder = (count) => Array.from({ length: count }, (_, i) => i)
 
 /**
  * Carrusel de loop continuo: al pasar del último panel al primero el
  * movimiento sigue en la misma dirección, sin rebobinar. El panel entrante
- * llega desde la izquierda y el contenido viaja hacia la derecha.
+ * llega desde la derecha y el contenido viaja hacia la izquierda.
  *
  * Rota un array `order` en estado (equivalente declarativo de la rotación de
  * hijos del prototipo) y aplica el transform por ref para poder intercalar el
@@ -28,7 +24,7 @@ export function useLoopCarousel(count, { autoplayMs = null } = {}) {
   const [paused, setPaused] = useState(false)
 
   // Fase pendiente para el layout effect: 'enter' coloca el panel entrante
-  // fuera de cuadro y lo anima; 'settle' recoloca el track tras un retroceso.
+  // fuera de cuadro y lo anima; 'settle' recoloca el track tras un avance.
   const phase = useRef(null)
   const busy = useRef(false)
   const timers = useRef([])
@@ -47,14 +43,6 @@ export function useLoopCarousel(count, { autoplayMs = null } = {}) {
   const next = useCallback(() => {
     if (busy.current) return
     busy.current = true
-    phase.current = 'enter'
-    setOrder((o) => [o[o.length - 1], ...o.slice(0, -1)])
-    setIndex((i) => (i + 1) % count)
-  }, [count])
-
-  const prev = useCallback(() => {
-    if (busy.current) return
-    busy.current = true
     track((el) => {
       el.style.transition = EASE
       el.style.transform = 'translateX(-100%)'
@@ -62,9 +50,17 @@ export function useLoopCarousel(count, { autoplayMs = null } = {}) {
     later(() => {
       phase.current = 'settle'
       setOrder((o) => [...o.slice(1), o[0]])
-      setIndex((i) => (i - 1 + count) % count)
+      setIndex((i) => (i + 1) % count)
     }, DURATION)
   }, [count, later])
+
+  const prev = useCallback(() => {
+    if (busy.current) return
+    busy.current = true
+    phase.current = 'enter'
+    setOrder((o) => [o[o.length - 1], ...o.slice(0, -1)])
+    setIndex((i) => (i - 1 + count) % count)
+  }, [count])
 
   useLayoutEffect(() => {
     const el = trackRef.current
@@ -73,7 +69,7 @@ export function useLoopCarousel(count, { autoplayMs = null } = {}) {
     if (phase.current === 'enter') {
       el.style.transition = 'none'
       el.style.transform = 'translateX(-100%)'
-      void el.offsetWidth // fuerza el reflow para que la transición se vea
+      void el.offsetWidth
       el.style.transition = EASE
       el.style.transform = 'translateX(0%)'
       later(() => {
