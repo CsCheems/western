@@ -1,5 +1,6 @@
 import { Menu, Search, ShoppingBag, User, X } from 'lucide-react'
 import { useState } from 'react'
+import logo from '../../assets/logo.png'
 import { navLinks } from '../../data/site'
 import { IconButton } from '../ui/IconButton'
 
@@ -10,17 +11,18 @@ const LINK =
 // deja la bolsa como UI. Cuando exista carrito, viene de ahí.
 const BAG_COUNT = 3
 
+// El lockup ya trae emblema y nombre, así que la marca es solo la imagen. El
+// alt sustituye al texto que estaba aquí antes.
 function BrandMark() {
   return (
-    <a href="#" className="mr-auto flex shrink-0 flex-col leading-none whitespace-nowrap">
-      <span className="font-display text-[21px] leading-[1.08] tracking-[.01em] text-gold">
-        Rincón
-        <br />
-        del Oeste
-      </span>
-      <span className="mt-[6px] text-[10px] tracking-[.36em] text-sand uppercase">
-        Est. 1892
-      </span>
+    <a href="#" className="mr-auto flex shrink-0 items-center">
+      <img
+        src={logo}
+        alt="Rincón del Oeste"
+        width={1983}
+        height={793}
+        className="h-[40px] w-auto sm:h-[48px]"
+      />
     </a>
   )
 }
