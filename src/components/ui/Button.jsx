@@ -1,5 +1,7 @@
+// Las utilidades `disabled:` ganan por especificidad a las planas de cada
+// variante, así que el estado deshabilitado se define una sola vez aquí.
 const BASE =
-  'inline-flex items-center justify-center gap-[10px] border text-[13px] tracking-[.16em] uppercase transition-colors cursor-pointer'
+  'inline-flex items-center justify-center gap-[10px] border text-[13px] tracking-[.16em] uppercase transition-colors cursor-pointer disabled:cursor-not-allowed disabled:border-rail disabled:bg-rail/40 disabled:text-sand'
 
 const VARIANTS = {
   // CTA de acento: oro que vira a óxido en hover.

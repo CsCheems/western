@@ -24,4 +24,6 @@ dist-ssr
 *.sw?
 
 #External
-./design_handoff_rincon_del_oeste
+.env.local
+.env.example
+
