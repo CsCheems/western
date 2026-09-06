@@ -16,6 +16,16 @@ import { CatalogCard } from './CatalogCard'
  * carrusel sí recorta) y esta retícula no necesita nada. El hueco mínimo de 22px
  * es la otra mitad de la misma cuenta: menos que eso y las marcas de dos
  * tarjetas vecinas se tocan.
+ *
+ * `content-start` mantiene la tarjeta a su altura natural, y el defecto que
+ * evita costó encontrarlo: si esta retícula acaba siendo ítem de otra que la
+ * estire —como lo era antes de que la página envolviera retícula y paginación
+ * juntas—, `align-content: normal` se comporta como `stretch` y reparte todo el
+ * hueco sobrante entre las filas `auto`. Una página de una sola fila daba
+ * tarjetas de 788px en vez de 590, porque la altura de la fila la fijaba el raíl
+ * de filtros. Hoy el envoltorio ya la deja en `height: auto`, así que la clase
+ * es un seguro, no el arreglo: lo que compra es que el componente no dependa de
+ * dónde lo monten.
  */
 export function CatalogGrid({ items, rotulos, onLimpiar }) {
   if (items.length === 0) {
@@ -37,7 +47,7 @@ export function CatalogGrid({ items, rotulos, onLimpiar }) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-[clamp(22px,2.4vw,36px)] sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 content-start gap-[clamp(22px,2.4vw,36px)] sm:grid-cols-2 xl:grid-cols-3">
       {items.map((product) => (
         <CatalogCard
           key={product.id}

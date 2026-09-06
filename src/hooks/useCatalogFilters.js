@@ -44,6 +44,12 @@ export function useCatalogFilters() {
       min: numero(params.get('min')),
       max: numero(params.get('max')),
       disponibles: params.get('disponibles') === '1',
+
+      // Se sanea aquí y no en quien lo use: ?pagina=0, ?pagina=-3 y ?pagina=hola
+      // son todos «la primera». El tope de arriba no se puede poner en este
+      // archivo —depende de cuántos resultados haya, que es cosa de la página—,
+      // y lo acota `paginar` en utils/catalog.js.
+      pagina: Math.max(1, Math.trunc(numero(params.get('pagina')) ?? 1)),
     }
   }, [query])
 
@@ -55,12 +61,20 @@ export function useCatalogFilters() {
    * Forma de actualizador y no de valor: el deslizador confirma con retardo, y
    * sin esto una confirmación que cayera en el mismo tick que una casilla pisaría
    * los parámetros que la casilla acababa de escribir.
+   *
+   * TOCAR UN FILTRO DEVUELVE A LA PRIMERA PÁGINA, y eso se hace aquí y no en cada
+   * acción por la misma razón por la que los dos guardas de /admin cuelgan del
+   * router entero y no de cada ruta: así la próxima acción que alguien añada nace
+   * corregida sin tener que acordarse de esto. La única que se salta la regla es
+   * la que escribe `pagina` a propósito.
    */
   const escribir = useCallback(
     (cambios, { replace = false } = {}) => {
       setSearchParams(
         (actuales) => {
           const siguientes = new URLSearchParams(actuales)
+
+          if (!('pagina' in cambios)) siguientes.delete('pagina')
 
           for (const [clave, valor] of Object.entries(cambios)) {
             siguientes.delete(clave)
@@ -118,6 +132,18 @@ export function useCatalogFilters() {
 
       disponibilidad(activo) {
         escribir({ disponibles: activo })
+      },
+
+      /**
+       * La primera página no escribe clave, igual que un Set vacío o una cadena
+       * vacía: una sola dirección por estado, y «/catalogo» a secas no acarrea
+       * nunca un ?pagina=1 que no dice nada.
+       *
+       * Empuja al historial, como alternar o quitar: cambiar de página es un paso
+       * que quisiste dar y «atrás» tiene que deshacerlo.
+       */
+      irAPagina(n) {
+        escribir({ pagina: n === 1 ? null : n })
       },
 
       limpiar() {

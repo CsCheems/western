@@ -16,9 +16,22 @@ const RETARDO_BUSQUEDA = 250
  * habría que añadir un tono nuevo al mapa de Field y otro a la casilla, y el
  * sistema crecería dos piezas para no ganar nada.
  *
- * EL FRAME VA FUERA Y EL SCROLL DENTRO. Las marcas de registro son hijas
- * absolutas del Frame y hermanas del scroller, así que nunca las recorta. La
- * regla que se deriva: ningún Frame dentro de ese div con overflow.
+ * EL RAÍL SE PINTA ENTERO Y NO TIENE SCROLL PROPIO. Tuvo `max-height` y
+ * `overflow-y: auto`, y los dos se fueron a la vez, por este orden de razones:
+ *
+ *   · El `max-height` no llegaba a funcionar. Estaba puesto en el <aside> y aquí
+ *     se heredaba con `max-h-full`, pero un `max-height` en porcentaje se
+ *     resuelve contra la ALTURA del contenedor, y la del <aside> era `auto`
+ *     —llevar un max-height no es tener altura—. El porcentaje se computaba a
+ *     `none`, este Frame crecía hasta 1148px dentro de un hueco de 816 y se
+ *     salía 332px por abajo, encima del footer.
+ *   · Aun arreglado, sobraba. Ocho grupos de casillas dentro de una caja con su
+ *     propia barra son dos scrolls anidados sobre el mismo gesto de rueda, y la
+ *     lista de filtros no es tan larga como para pagar eso.
+ *
+ * La regla que queda: este raíl mide lo que mide su contenido, y quien lo monte
+ * se encarga de que quepa. Nada de overflow aquí dentro —las marcas de registro
+ * del Frame sobresalen 6px y cualquier recorte se las come—.
  */
 export function CatalogFilters({ facetas, filtros, acciones }) {
   // El buscador escribe en la URL con retardo, así que necesita su propio estado
@@ -45,11 +58,8 @@ export function CatalogFilters({ facetas, filtros, acciones }) {
   }, [texto, visto, acciones])
 
   return (
-    <Frame
-      markClass="text-buck"
-      className="flex flex-col border-buck/32 bg-panel lg:max-h-full"
-    >
-      <div className="flex flex-col gap-[22px] overflow-y-auto px-[18px] py-[20px]">
+    <Frame markClass="text-buck" className="flex flex-col border-buck/32 bg-panel">
+      <div className="flex flex-col gap-[22px] px-[18px] py-[20px]">
         <Field field={campoBusqueda} value={texto} onChange={(_, valor) => setTexto(valor)} />
 
         <PriceRange

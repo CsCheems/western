@@ -100,6 +100,12 @@ export const catalogCopy = {
   agotado: 'Agotado',
   moneda: 'MXN',
 
+  paginacion: 'Paginación',
+  paginaAnterior: 'Anterior',
+  paginaSiguiente: 'Siguiente',
+  irAPagina: (n) => `Ir a la página ${n}`,
+  paginaActual: (n, total) => `Página ${n} de ${total}`,
+
   vacioTitulo: 'No encontramos piezas con estos filtros',
   vacioCuerpo: 'Prueba con menos filtros o amplía el rango de precio.',
   cargando: 'Cargando el catálogo…',

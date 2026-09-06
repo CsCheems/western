@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { CatalogFilters } from '../../components/catalog/CatalogFilters'
 import { CatalogGrid } from '../../components/catalog/CatalogGrid'
 import { CatalogHero } from '../../components/catalog/CatalogHero'
+import { CatalogPagination } from '../../components/catalog/CatalogPagination'
 import { CatalogState } from '../../components/catalog/CatalogState'
 import { CatalogToolbar } from '../../components/catalog/CatalogToolbar'
 import { AnnouncementBar } from '../../components/layout/AnnouncementBar'
@@ -11,7 +12,7 @@ import { catalogCopy } from '../../data/catalog'
 import { useApiResource } from '../../hooks/useApiResource'
 import { useCatalogFilters } from '../../hooks/useCatalogFilters'
 import { getCatalog } from '../../services/catalog'
-import { filtrarProductos, indexar } from '../../utils/catalog'
+import { filtrarProductos, indexar, paginar } from '../../utils/catalog'
 
 /**
  * El catálogo entero. La misma cáscara que la portada —anuncio, navbar, footer—;
@@ -27,12 +28,15 @@ import { filtrarProductos, indexar } from '../../utils/catalog'
  *
  * `abierto` es estado local y no un parámetro de la URL: si el raíl está
  * desplegado es un modo de la interfaz, no un filtro, y compartir un enlace no
- * debe abrirle el panel a quien lo reciba.
+ * debe abrirle el panel a quien lo reciba. La PÁGINA sí va en la URL, con el
+ * mismo criterio al revés: «mira la página 3 de esto» es una dirección que se
+ * comparte, y el botón atrás tiene que deshacerla.
  */
 export default function Catalog() {
   const { data, status, error, reload } = useApiResource(getCatalog)
   const { filtros, activos, acciones } = useCatalogFilters()
   const [filtrosAbiertos, setFiltrosAbiertos] = useState(false)
+  const resultadosRef = useRef(null)
 
   // Una vez por respuesta: los mapas de rótulo y la cadena de búsqueda ya
   // normalizada de cada pieza. Filtrar después no vuelve a tocar ninguna de las
@@ -44,6 +48,27 @@ export default function Catalog() {
     [catalogo, filtros],
   )
 
+  // Se pagina DESPUÉS de filtrar y sobre el resultado entero, que es lo que hace
+  // que la barra siga contando las 35 piezas mientras la retícula enseña nueve.
+  const pagina = useMemo(
+    () => paginar(resultados, filtros.pagina),
+    [resultados, filtros.pagina],
+  )
+
+  /**
+   * Cambiar de página deja la vista a media retícula, así que hay que volver
+   * arriba. Va en el manejador y no en un efecto sobre `filtros.pagina`: un
+   * efecto también saltaría en el primer render y al llegar desde el navbar con
+   * un filtro puesto, que es un salto que nadie pidió.
+   *
+   * Sin `behavior: 'smooth'`: el barrido del botón de envío es la única animación
+   * del proyecto y no toca ampliar la lista por esto.
+   */
+  const irAPagina = (n) => {
+    acciones.irAPagina(n)
+    resultadosRef.current?.scrollIntoView()
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-ink">
       <AnnouncementBar />
@@ -53,7 +78,10 @@ export default function Catalog() {
         <CatalogHero />
 
         <section className="bg-paper px-gutter py-[clamp(38px,5vw,72px)] text-ink">
-          <div className="mx-auto max-w-shell">
+          {/* `scroll-mt` para que al cambiar de página el ancla no quede debajo
+              del navbar pegajoso — el mismo 92px del `lg:top` del raíl, más el
+              aire de la barra de anuncios. */}
+          <div ref={resultadosRef} className="mx-auto max-w-shell scroll-mt-[100px]">
             {status !== 'ready' ? (
               <CatalogState status={status} error={error} onRetry={reload} />
             ) : (
@@ -74,12 +102,28 @@ export default function Catalog() {
                   onToggleFiltros={() => setFiltrosAbiertos((abierto) => !abierto)}
                 />
 
-                <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-[clamp(24px,2.6vw,44px)]">
+                {/* 320px y no 280: la fila más ancha del raíl —«Monturas y
+                    talabartería» con su cuenta— pide 250px, y con 280 el ancho
+                    útil se quedaba en 242 y la etiqueta se cortaba. */}
+                <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-[clamp(24px,2.6vw,44px)]">
                   {/* `self-start` no es adorno: sin él la columna se estira a lo
-                      alto de la fila y el sticky se queda sin recorrido. */}
+                      alto de la fila y el sticky se queda sin recorrido.
+
+                      SE PEGA POR ABAJO Y NO POR ARRIBA, que es lo que pide un
+                      raíl más alto que la pantalla: el raíl se pinta entero
+                      —ocho grupos, ~1150px— y con `top` quedaría clavado a 92px
+                      del borde con su último grupo permanentemente fuera de
+                      cuadro, sin forma de alcanzarlo. Con `bottom` acompaña al
+                      scroll mientras lo recorres y se ancla cuando su final llega
+                      al pie de la ventana.
+
+                      Y el sticky no puede invadir el footer porque su caja de
+                      contención es la celda de esta retícula: mientras el Frame
+                      no se salga del <aside> —ver CatalogFilters—, el raíl se
+                      detiene donde acaba la fila. */}
                   <aside
                     aria-label={catalogCopy.filtros}
-                    className={`${filtrosAbiertos ? 'mb-[28px] block' : 'hidden'} lg:sticky lg:top-[92px] lg:mb-0 lg:block lg:max-h-[calc(100vh-112px)] lg:self-start`}
+                    className={`${filtrosAbiertos ? 'mb-[28px] block' : 'hidden'} lg:sticky lg:bottom-[20px] lg:mb-0 lg:block lg:self-start`}
                   >
                     <CatalogFilters
                       facetas={catalogo.facetas}
@@ -88,11 +132,23 @@ export default function Catalog() {
                     />
                   </aside>
 
-                  <CatalogGrid
-                    items={resultados}
-                    rotulos={catalogo.rotulos}
-                    onLimpiar={acciones.limpiar}
-                  />
+                  {/* La retícula y sus números son una sola columna: el div
+                      envuelve a los dos para que la paginación no se convierta
+                      en una tercera fila de la retícula exterior, debajo del
+                      raíl. */}
+                  <div>
+                    <CatalogGrid
+                      items={pagina.items}
+                      rotulos={catalogo.rotulos}
+                      onLimpiar={acciones.limpiar}
+                    />
+
+                    <CatalogPagination
+                      pagina={pagina.pagina}
+                      total={pagina.total}
+                      onIr={irAPagina}
+                    />
+                  </div>
                 </div>
               </>
             )}

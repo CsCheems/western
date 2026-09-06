@@ -20,7 +20,15 @@ const FILA =
  */
 export function FilterGroup({ title, options, selected, onToggle }) {
   return (
-    <fieldset className="border-0 p-0">
+    // `min-w-0` NO es de adorno y quitarlo rompe dos cosas a la vez. El navegador
+    // le impone a todo <fieldset> un `min-inline-size: min-content` desde su hoja
+    // de usuario, así que el grupo no puede encoger por debajo de su etiqueta más
+    // larga: con «Monturas y talabartería» dentro, este fieldset medía 250px en un
+    // raíl de 242 mientras los otros tres medían 242. De ahí salían los dos
+    // defectos que se veían —sus cuentas quedaban 8px a la derecha de las demás, y
+    // el scroller desbordaba esos mismos 8px, que con `overflow-y: auto` el
+    // navegador convierte en `overflow-x: auto` y pinta una barra horizontal—.
+    <fieldset className="min-w-0 border-0 p-0">
       <legend className="mb-[6px] text-[11px] tracking-label text-buck uppercase">{title}</legend>
 
       {options.map((opcion) => {
