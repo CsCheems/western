@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthModal } from '../components/auth/AuthModal'
-import { login, logout as endSession, me, register } from '../services/auth'
+import {
+  login,
+  logout as endSession,
+  me,
+  register,
+  updateProfile as saveProfile,
+} from '../services/auth'
 import { AuthContext } from './AuthContext'
 
 const CLOSED = { open: false, view: 'login', session: 0 }
@@ -70,6 +76,15 @@ export function AuthProvider({ children }) {
     return session
   }, [])
 
+  // La respuesta es el usuario ya actualizado: ponerlo en el contexto es lo que
+  // hace que la cabecera del perfil y el menú de cuenta cambien sin otra
+  // petición.
+  const updateProfile = useCallback(async (values) => {
+    const updated = await saveProfile(values)
+    setUser(updated)
+    return updated
+  }, [])
+
   /**
    * Cerrar sesión son dos cosas: invalidarla en el servidor y olvidarla aquí.
    *
@@ -96,9 +111,10 @@ export function AuthProvider({ children }) {
       closeAuth,
       signIn,
       signUp,
+      updateProfile,
       logout,
     }),
-    [user, status, modal.open, modal.view, openAuth, closeAuth, signIn, signUp, logout],
+    [user, status, modal.open, modal.view, openAuth, closeAuth, signIn, signUp, updateProfile, logout],
   )
 
   return (

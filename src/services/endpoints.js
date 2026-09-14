@@ -9,6 +9,7 @@ export const ENDPOINTS = {
     login: '/auth/login',
     register: '/auth/register',
     logout: '/auth/logout',
+    // GET lee la sesión; PUT guarda la edición del perfil.
     me: '/auth/me',
   },
   products: {

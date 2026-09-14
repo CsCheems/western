@@ -11,8 +11,12 @@ import { Button } from '../ui/Button'
  * Sin avatar ni hueco reservado para uno: el alta no pide foto, y dejar un
  * cuadro esperando una imagen que nadie va a subir es prometer una función que
  * no existe.
+ *
+ * Mientras se edita, el botón desaparece: pulsarlo otra vez no haría nada, y
+ * las dos salidas de la edición —guardar y cancelar— están en el propio
+ * formulario. `editRef` es para que la página le devuelva el foco al salir.
  */
-export function ProfileIdentity({ user }) {
+export function ProfileIdentity({ user, editing, onEdit, editRef }) {
   return (
     <section className="border-y border-rail bg-panel px-gutter py-[clamp(34px,4.4vw,58px)]">
       <div className="mx-auto flex max-w-shell flex-wrap items-end justify-between gap-6">
@@ -28,14 +32,19 @@ export function ProfileIdentity({ user }) {
           <p className="mt-[10px] text-[14px] text-sand">{user.email}</p>
         </div>
 
-        {/* Todavía no hace nada, y es deliberado: la edición llegará en la misma
-            forma de abajo. Va en `outline` y no en `solid` porque el oro macizo
-            es el CTA de compra del sitio, y dárselo a un botón que aún no
-            responde sería mentir dos veces. */}
-        <Button variant="outline" className="shrink-0 px-[22px] py-[13px]">
-          <SquarePen size={15} strokeWidth={1.5} />
-          {profileCopy.edit}
-        </Button>
+        {/* En `outline` y no en `solid`: el oro macizo es el CTA de compra del
+            sitio, y editar tus datos no es comprar nada. */}
+        {!editing && (
+          <Button
+            ref={editRef}
+            variant="outline"
+            onClick={onEdit}
+            className="shrink-0 px-[22px] py-[13px]"
+          >
+            <SquarePen size={15} strokeWidth={1.5} />
+            {profileCopy.edit}
+          </Button>
+        )}
       </div>
     </section>
   )

@@ -49,6 +49,36 @@ export function logout() {
  * definiciones de «el mismo correo» es como se acaba con dos cuentas para la
  * misma persona. El backend normaliza y devuelve el correo canónico.
  */
+/**
+ * Guarda la edición del perfil y devuelve el usuario actualizado, con la misma
+ * forma que me().
+ *
+ * Mismo criterio que register(): el cuerpo se arma nombrando campos. El correo
+ * NO se manda —en la edición es de solo lectura— y las tres contraseñas viajan
+ * siempre, vacías si no se tocaron: el servidor omite el grupo cuando llega
+ * vacío, igual que validateProfile aquí.
+ *
+ * Si cambió la contraseña, la respuesta trae cookies de sesión nuevas: Supabase
+ * cierra las demás sesiones de la cuenta, incluida la anterior de este
+ * navegador. El navegador las guarda solo; aquí no hay nada que hacer.
+ */
+export function updateProfile(values) {
+  return http.put(ENDPOINTS.auth.me, {
+    nombre: values.nombre,
+    apellido: values.apellido,
+    telefono: values.telefono,
+    pais: values.pais,
+    estado: values.estado,
+    codigoPostal: values.codigoPostal,
+    colonia: values.colonia,
+    calle: values.calle,
+    numero: values.numero,
+    currentPassword: values.currentPassword,
+    password: values.password,
+    confirmPassword: values.confirmPassword,
+  })
+}
+
 export function register(values) {
   return http.post(ENDPOINTS.auth.register, {
     nombre: values.nombre,
