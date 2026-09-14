@@ -113,3 +113,64 @@ export function setPrincipalImage(id, imagenId) {
 export function removeProductImage(id, imagenId) {
   return http.delete(ENDPOINTS.admin.image(id, imagenId))
 }
+
+// ─── Marcas y categorías ───────────────────────────────────────────────────
+//
+// La lista de categorías es getCategories, la del menú lateral: trae también lo
+// que la sección necesita. Crear y editar devuelven la entrada ya guardada, con
+// su slug; borrar no devuelve nada.
+
+export function getBrands(options) {
+  return http.get(ENDPOINTS.admin.brands, options)
+}
+
+// Una marca con `categoriasFijas`: las que no se pueden quitar. 404 si no existe.
+export function getBrand(id, options) {
+  return http.get(ENDPOINTS.admin.brand(id), options)
+}
+
+// Las categorías viajan completas, no como diferencia: las que quedan marcadas.
+function toBrandBody(values) {
+  return {
+    nombre: values.nombre,
+    categorias: values.categorias,
+  }
+}
+
+export function createBrand(values) {
+  return http.post(ENDPOINTS.admin.brands, toBrandBody(values))
+}
+
+export function updateBrand(id, values) {
+  return http.put(ENDPOINTS.admin.brand(id), toBrandBody(values))
+}
+
+export function deleteBrand(id) {
+  return http.delete(ENDPOINTS.admin.brand(id))
+}
+
+// Una categoría con sus `*Fijo`: qué campos ya no se pueden cambiar.
+export function getCategory(id, options) {
+  return http.get(ENDPOINTS.admin.category(id), options)
+}
+
+function toCategoryBody(values) {
+  return {
+    nombre: values.nombre,
+    prefijo: values.prefijo,
+    llevaGenero: values.llevaGenero,
+    admiteFieltro: values.admiteFieltro,
+  }
+}
+
+export function createCategory(values) {
+  return http.post(ENDPOINTS.admin.categories, toCategoryBody(values))
+}
+
+export function updateCategory(id, values) {
+  return http.put(ENDPOINTS.admin.category(id), toCategoryBody(values))
+}
+
+export function deleteCategory(id) {
+  return http.delete(ENDPOINTS.admin.category(id))
+}

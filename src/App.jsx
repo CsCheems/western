@@ -2,6 +2,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthProvider'
 import { ToastProvider } from './context/ToastProvider'
 import AdminArchivados from './page/Admin/Archivados/page'
+import AdminCategoria from './page/Admin/Categoria/page'
+import AdminCategorias from './page/Admin/Categorias/page'
+import AdminMarca from './page/Admin/Marca/page'
+import AdminMarcas from './page/Admin/Marcas/page'
 import Admin from './page/Admin/page'
 import AdminProducto from './page/Admin/Producto/page'
 import AdminProductos from './page/Admin/Productos/page'
@@ -36,12 +40,20 @@ export default function App() {
               <Route path="productos" element={<AdminProductos />} />
               {/* «nuevo» es un segmento fijo y el router lo prefiere sobre
                   `:categoria`, así que no hay que ordenar nada. Una categoría
-                  que se llamara «nuevo» quedaría tapada: no existe, y el slug
-                  de las categorías lo decide la semilla SQL. */}
+                  que se llamara «nuevo» quedaría tapada: no puede existir, lo
+                  impiden el servidor y un check de la base. */}
               <Route path="productos/nuevo" element={<AdminProducto />} />
               <Route path="productos/:categoria" element={<AdminProductos />} />
               <Route path="articulos/:id" element={<AdminProducto />} />
               <Route path="archivados" element={<AdminArchivados />} />
+              {/* La edición cuelga de `:id/editar` y no de `:id`: así «nueva»
+                  no tapa a ninguna marca ni categoría que se llame así. */}
+              <Route path="marcas" element={<AdminMarcas />} />
+              <Route path="marcas/nueva" element={<AdminMarca />} />
+              <Route path="marcas/:id/editar" element={<AdminMarca />} />
+              <Route path="categorias" element={<AdminCategorias />} />
+              <Route path="categorias/nueva" element={<AdminCategoria />} />
+              <Route path="categorias/:id/editar" element={<AdminCategoria />} />
             </Route>
           </Routes>
         </AuthProvider>

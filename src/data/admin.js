@@ -13,15 +13,21 @@ export const adminHeader = 'Panel de administración'
 // por lo mismo que en accountMenu: es una acción, no un enlace.
 export const adminUserMenu = [{ label: 'Volver al sitio', icon: 'site', to: '/' }]
 
-// La entrada fija del menú lateral. Debajo de ella el componente pinta las
-// categorías que trae la API.
+// Las entradas fijas del menú lateral. Debajo de ellas el componente pinta las
+// categorías que trae la API, cada una con su inventario.
+//
+// El rótulo de ese grupo es «Por categoría» y no «Categorías»: «Categorías» ya
+// es la entrada fija que las administra, y dos rótulos iguales uno encima del
+// otro no dicen cuál es cuál.
 export const adminSidebar = {
   fijos: [
     { label: 'Resumen', icon: 'home', to: '/admin' },
     { label: 'Todo el inventario', icon: 'boxes', to: '/admin/productos' },
     { label: 'Archivados', icon: 'archive', to: '/admin/archivados' },
+    { label: 'Marcas', icon: 'tag', to: '/admin/marcas' },
+    { label: 'Categorías', icon: 'shapes', to: '/admin/categorias' },
   ],
-  categorias: 'Categorías',
+  categorias: 'Por categoría',
   base: '/admin/productos',
 }
 
@@ -55,6 +61,24 @@ export const productColumns = [
   { key: 'actualizado', label: 'Actualizado', tipo: 'fecha', align: 'right' },
 ]
 
+// `lista` pinta los rótulos de un array de `{ id, label }`; `booleano`, «Sí» o
+// una raya.
+export const brandColumns = [
+  { key: 'label', label: 'Marca', tipo: 'texto' },
+  { key: 'categorias', label: 'Categorías', tipo: 'lista' },
+  { key: 'count', label: 'Artículos', tipo: 'entero', align: 'right' },
+  { key: 'enTienda', label: 'En la tienda', tipo: 'booleano' },
+]
+
+export const categoryColumns = [
+  { key: 'label', label: 'Categoría', tipo: 'texto' },
+  { key: 'prefijo', label: 'Prefijo', tipo: 'codigo' },
+  { key: 'llevaGenero', label: 'Género', tipo: 'booleano' },
+  { key: 'admiteFieltro', label: 'Fieltro', tipo: 'booleano' },
+  { key: 'marcas', label: 'Marcas', tipo: 'lista' },
+  { key: 'count', label: 'Artículos', tipo: 'entero', align: 'right' },
+]
+
 export const pedidoColumns = [
   { key: 'folio', label: 'Folio', tipo: 'codigo' },
   { key: 'cliente', label: 'Cliente', tipo: 'texto' },
@@ -86,7 +110,7 @@ export const adminCopy = {
   stockPiezas: (n) => `${n} ${n === 1 ? 'pieza' : 'piezas'}`,
   inventarioTitulo: 'Todo el inventario',
   inventarioCuenta: (n) => `${n} ${n === 1 ? 'artículo' : 'artículos'}`,
-  portadaSi: 'Sí',
+  si: 'Sí',
   variacionPie: 'respecto al periodo anterior',
   sinFoto: 'Sin foto',
   acciones: 'Acciones',
@@ -97,6 +121,17 @@ export const adminCopy = {
   archivadosTitulo: 'Archivados',
   archivadosIntro: 'Fuera de la tienda y del inventario. Restaurar los devuelve tal como estaban.',
   archivadosVacio: 'No hay artículos archivados.',
+  borrar: 'Borrar',
+  marcasTitulo: 'Marcas',
+  marcasIntro:
+    'Una marca sale en el menú de la tienda y en la portada cuando tiene un artículo publicado. Solo se borran las que no tienen artículos, contando los archivados.',
+  marcasVacio: 'Todavía no hay marcas.',
+  nuevaMarca: 'Nueva marca',
+  categoriasTitulo: 'Categorías',
+  categoriasIntro:
+    'Las nuevas van al final del menú lateral y del catálogo. Solo se borran las que no tienen artículos, contando los archivados.',
+  categoriasVacio: 'Todavía no hay categorías.',
+  nuevaCategoria: 'Nueva categoría',
 }
 
 // Diálogos de confirmación. Archivar y quitar una imagen se confirman; lo demás
@@ -115,6 +150,19 @@ export const adminConfirm = {
     confirmar: 'Quitar',
     pendiente: 'Quitando…',
   },
+  borrarMarca: {
+    titulo: '¿Borrar esta marca?',
+    cuerpo: (nombre) => `«${nombre}» deja de existir y sale de las categorías que trabajaba. No se puede deshacer.`,
+    confirmar: 'Borrar',
+    pendiente: 'Borrando…',
+  },
+  borrarCategoria: {
+    titulo: '¿Borrar esta categoría?',
+    cuerpo: (nombre) =>
+      `«${nombre}» deja de existir y las marcas dejan de trabajarla. No se puede deshacer.`,
+    confirmar: 'Borrar',
+    pendiente: 'Borrando…',
+  },
   cancelar: 'Cancelar',
 }
 
@@ -126,6 +174,13 @@ export const adminNotices = {
   archivado: (titulo) => `«${titulo}» quedó archivado.`,
   restaurado: (titulo) => `«${titulo}» volvió al inventario.`,
   archivadoAviso: 'Este artículo está archivado: no aparece en la tienda ni en el inventario.',
+  marcaCreada: (nombre) => `Marca «${nombre}» creada. Ya se puede elegir al dar de alta artículos.`,
+  marcaGuardada: (nombre) => `Guardamos los cambios de «${nombre}».`,
+  marcaBorrada: (nombre) => `«${nombre}» quedó borrada.`,
+  categoriaCreada: (nombre) =>
+    `Categoría «${nombre}» creada. Asígnala a sus marcas en Marcas para poder dar de alta artículos en ella.`,
+  categoriaGuardada: (nombre) => `Guardamos los cambios de «${nombre}».`,
+  categoriaBorrada: (nombre) => `«${nombre}» quedó borrada.`,
 }
 
 // ─── Formulario de artículo ────────────────────────────────────────────────
@@ -177,6 +232,8 @@ export const productFields = [
     dependsOn: 'categoria',
     placeholder: 'Elige una marca',
     emptyPlaceholder: 'Primero elige la categoría',
+    // Una categoría recién creada puede no tener marcas todavía.
+    noOptionsPlaceholder: 'Ninguna marca trabaja esta categoría',
     seccion: 'clasificacion',
   },
   {
@@ -273,6 +330,116 @@ export function toProductValues(producto) {
     enPortada: producto.enPortada,
   }
 }
+
+// ─── Formularios de marca y categoría ──────────────────────────────────────
+
+export const catalogFormCopy = {
+  marca: {
+    nuevoTitulo: 'Nueva marca',
+    editarTitulo: 'Editar marca',
+    crear: 'Crear marca',
+    volver: 'Volver a marcas',
+    lista: '/admin/marcas',
+  },
+  categoria: {
+    nuevoTitulo: 'Nueva categoría',
+    editarTitulo: 'Editar categoría',
+    crear: 'Crear categoría',
+    volver: 'Volver a categorías',
+    lista: '/admin/categorias',
+    secciones: {
+      datos: 'Datos',
+      atributos: 'Qué piden sus artículos',
+    },
+  },
+  creando: 'Creando…',
+  guardar: 'Guardar cambios',
+  guardando: 'Guardando…',
+  cancelar: 'Cancelar',
+  conArticulos: 'con artículos',
+  enTiendaSi: 'Sale en el menú de la tienda y en la portada.',
+  enTiendaNo: 'Todavía no sale en la tienda: aparece cuando tenga un artículo publicado.',
+  marcasDe: (nombres) => `La trabajan: ${nombres}.`,
+  sinMarcas: 'Ninguna marca la trabaja todavía: asígnala desde Marcas para poder dar de alta artículos en ella.',
+}
+
+/**
+ * Los campos de una marca, en el orden de brandSchema
+ * (backend/validation/admin.schema.js).
+ *
+ * `checkboxes` es un grupo de casillas cuyo valor es la lista de ids marcados.
+ */
+export const brandFields = [
+  { name: 'nombre', label: 'Nombre', type: 'text', maxLength: 40, placeholder: 'Ferrería del Norte' },
+  {
+    name: 'categorias',
+    label: 'Categorías que trabaja',
+    type: 'checkboxes',
+    hint: 'Al dar de alta un artículo, la marca solo se ofrece en estas categorías.',
+  },
+]
+
+/**
+ * Los campos de una categoría, en el orden de categorySchema.
+ *
+ * `fijo` nombra la bandera del servidor que bloquea el campo —la categoría ya
+ * tiene artículos— y `hintFijo` es lo que se dice entonces en lugar del `hint`.
+ */
+export const categoryFields = [
+  { name: 'nombre', label: 'Nombre', type: 'text', maxLength: 40, placeholder: 'Chalecos', seccion: 'datos' },
+  {
+    name: 'prefijo',
+    label: 'Prefijo del SKU',
+    type: 'text',
+    maxLength: 3,
+    placeholder: 'CHA',
+    seccion: 'datos',
+    hint: 'Tres letras: RDO-CHA-001. Queda fijo en cuanto la categoría tenga artículos.',
+    fijo: 'prefijoFijo',
+    hintFijo: 'Ya está en el SKU de sus artículos y no se puede cambiar.',
+  },
+  {
+    name: 'llevaGenero',
+    label: 'Lleva género',
+    type: 'checkbox',
+    seccion: 'atributos',
+    hint: 'Cada artículo tendrá que elegir Dama, Caballero o Unisex. Se decide antes del primer artículo.',
+    fijo: 'generoFijo',
+    hintFijo: 'La categoría ya tiene artículos: el género no se puede activar ni quitar.',
+  },
+  {
+    name: 'admiteFieltro',
+    label: 'Admite fieltro',
+    type: 'checkbox',
+    seccion: 'atributos',
+    hint: 'Cada artículo podrá indicar su X de fieltro, de 2X a 1000X, si la tiene.',
+    fijo: 'fieltroFijo',
+    hintFijo: 'Hay artículos con fieltro en esta categoría: no se puede quitar.',
+  },
+]
+
+// Copia LITERAL de los mensajes de formato de backend/validation/rules.js. Los
+// que dependen de lo que ya hay —nombre repetido, prefijo ocupado— los manda el
+// servidor.
+export const catalogMessages = {
+  required: 'Este campo es obligatorio',
+  nombreLargo: 'El nombre admite hasta 40 caracteres',
+  prefijo: 'Escribe tres letras sin acentos ni ñ, como BOT',
+  categorias: 'Elige al menos una categoría',
+}
+
+export const newBrandValues = { nombre: '', categorias: [] }
+
+export const toBrandValues = (marca) => ({ nombre: marca.label, categorias: marca.categorias })
+
+export const newCategoryValues = { nombre: '', prefijo: '', llevaGenero: false, admiteFieltro: false }
+
+export const toCategoryValues = (categoria) => ({
+  nombre: categoria.label,
+  prefijo: categoria.prefijo,
+  llevaGenero: categoria.llevaGenero,
+  admiteFieltro: categoria.admiteFieltro,
+})
 
 // ─── Galería ───────────────────────────────────────────────────────────────
 

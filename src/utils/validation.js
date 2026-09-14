@@ -1,4 +1,4 @@
-import { productFields, productMessages } from '../data/admin'
+import { catalogMessages, productFields, productMessages } from '../data/admin'
 import { authFields, validationMessages as MSG } from '../data/auth'
 import { PASSWORD_GROUP, profileEditFields } from '../data/profile'
 
@@ -97,6 +97,15 @@ const PROFILE_WITHOUT_PASSWORD = profileEditFields.filter(
  * Espejo del `optionalGroup` de updateMeSchema en backend/validation/
  * auth.schema.js. Si una regla cambia, cambian las dos.
  */
+export function validateProfile(values) {
+  const changingPassword = PASSWORD_GROUP.some((name) => values[name])
+
+  return validateFields(changingPassword ? profileEditFields : PROFILE_WITHOUT_PASSWORD, values, {
+    minPassword: true,
+    matchPassword: true,
+  })
+}
+
 // ─── Artículos del panel ───────────────────────────────────────────────────
 //
 // Espejo de productSchema (backend/validation/admin.schema.js) y de sus formatos
@@ -143,11 +152,39 @@ export function validateProduct(values, categoria) {
   return errors
 }
 
-export function validateProfile(values) {
-  const changingPassword = PASSWORD_GROUP.some((name) => values[name])
+// ─── Marcas y categorías del panel ─────────────────────────────────────────
+//
+// Espejo de brandSchema y categorySchema, con los topes de rules.js. Que el
+// nombre o el prefijo estén libres solo lo sabe el servidor.
 
-  return validateFields(changingPassword ? profileEditFields : PROFILE_WITHOUT_PASSWORD, values, {
-    minPassword: true,
-    matchPassword: true,
-  })
+const NOMBRE_MAX = 40
+const PREFIJO = /^[A-Za-z]{3}$/
+
+function validateNombre(values, errors) {
+  const nombre = values.nombre.trim()
+
+  if (!nombre) errors.nombre = catalogMessages.required
+  else if (nombre.length > NOMBRE_MAX) errors.nombre = catalogMessages.nombreLargo
+}
+
+export function validateBrand(values) {
+  const errors = {}
+
+  validateNombre(values, errors)
+  if (values.categorias.length === 0) errors.categorias = catalogMessages.categorias
+
+  return errors
+}
+
+// Las casillas no se validan: siempre tienen valor.
+export function validateCategory(values) {
+  const errors = {}
+
+  validateNombre(values, errors)
+
+  const prefijo = values.prefijo.trim()
+  if (!prefijo) errors.prefijo = catalogMessages.required
+  else if (!PREFIJO.test(prefijo)) errors.prefijo = catalogMessages.prefijo
+
+  return errors
 }

@@ -1,9 +1,9 @@
-import { Archive, Boxes, LayoutDashboard } from 'lucide-react'
+import { Archive, Boxes, LayoutDashboard, Shapes, Tag } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { adminSidebar } from '../../data/admin'
 import { formatInteger } from '../../utils/format'
 
-const ICONS = { home: LayoutDashboard, boxes: Boxes, archive: Archive }
+const ICONS = { home: LayoutDashboard, boxes: Boxes, archive: Archive, tag: Tag, shapes: Shapes }
 
 const ITEM =
   'flex shrink-0 items-center gap-[10px] rounded-admin px-3 py-[9px] text-[13px] whitespace-nowrap transition-colors'

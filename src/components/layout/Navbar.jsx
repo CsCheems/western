@@ -2,8 +2,8 @@ import { Menu, Search, ShoppingBag, X } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../../assets/logo.png'
-import { navLinks } from '../../data/site'
 import { useDismissable } from '../../hooks/useDismissable'
+import { useNavLinks } from '../../hooks/useNavLinks'
 import { IconButton } from '../ui/IconButton'
 import { AccountMenu } from './AccountMenu'
 import { NavMenu } from './NavMenu'
@@ -47,8 +47,12 @@ function BrandMark() {
  * disparador B con A abierto, el `pointerdown` de useDismissable cierra A y el
  * `click` abre B en el mismo tick. Con un valor plano las dos actualizaciones se
  * pisan; con el actualizador, la segunda ve lo que dejó la primera.
+ *
+ * Los menús salen de useNavLinks y no de data/site.js directamente: los talleres
+ * de «Marcas» llegan de la base. Se piden aquí una vez y bajan a la hamburguesa.
  */
 export function Navbar() {
+  const links = useNavLinks()
   const [menuOpen, setMenuOpen] = useState(false)
   const [openMenu, setOpenMenu] = useState(null)
 
@@ -71,7 +75,7 @@ export function Navbar() {
         {/* `h-full`: es contra este alto contra el que resuelve el `h-full` de
             cada NavMenu, y de ahí que sus paneles caigan al fondo de la fila. */}
         <nav className="hidden h-full shrink-0 items-center gap-[clamp(9px,1.2vw,24px)] text-[12px] tracking-[.1em] whitespace-nowrap uppercase lg:flex">
-          {navLinks.map((item) =>
+          {links.map((item) =>
             item.children ? (
               <NavMenu
                 key={item.key}
@@ -136,7 +140,7 @@ export function Navbar() {
           ref={panelRef}
           className="max-h-[calc(100dvh-113px)] overflow-y-auto border-t border-rail px-gutter py-4 text-[12px] tracking-[.1em] uppercase lg:hidden"
         >
-          <NavMobileMenu closeMenu={closeMenu} />
+          <NavMobileMenu links={links} closeMenu={closeMenu} />
         </nav>
       )}
     </header>

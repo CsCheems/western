@@ -1,10 +1,10 @@
-import { ArrowLeft } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
 import { AdminBadge } from '../../../components/admin/AdminBadge'
 import { AdminButton } from '../../../components/admin/AdminButton'
 import { AdminCard } from '../../../components/admin/AdminCard'
 import { AdminField } from '../../../components/admin/AdminField'
+import { AdminFormHeader } from '../../../components/admin/AdminFormHeader'
 import { AdminGallery } from '../../../components/admin/AdminGallery'
 import { AdminNotice } from '../../../components/admin/AdminNotice'
 import { AdminState } from '../../../components/admin/AdminState'
@@ -70,18 +70,13 @@ export default function AdminProducto() {
   return <Editor key={id ?? 'nuevo'} catalogos={catalogos.data} inicial={producto.data} />
 }
 
+const VOLVER = { to: '/admin/productos', label: productFormCopy.volver }
+
 function Cabecera({ titulo, children }) {
   return (
-    <header className="mb-[18px]">
-      <AdminButton size="sm" to="/admin/productos" className="mb-3">
-        <ArrowLeft size={14} strokeWidth={1.5} />
-        {productFormCopy.volver}
-      </AdminButton>
-      <h1 className="text-[22px] leading-none text-admin-ink">{titulo}</h1>
-      <div className="mt-[8px] flex min-h-[20px] flex-wrap items-center gap-2 text-[13px] text-admin-muted">
-        {children}
-      </div>
-    </header>
+    <AdminFormHeader volver={VOLVER} titulo={titulo}>
+      {children}
+    </AdminFormHeader>
   )
 }
 
@@ -244,6 +239,7 @@ function Editor({ catalogos, inicial }) {
                 {campos.map((field) => {
                   const lista = field.type === 'select' ? opciones(field) : undefined
                   const sinOpciones = field.dependsOn && !values[field.dependsOn]
+                  const listaVacia = !sinOpciones && field.noOptionsPlaceholder && lista?.length === 0
 
                   return (
                     <AdminField
@@ -252,7 +248,13 @@ function Editor({ catalogos, inicial }) {
                       value={values[field.name]}
                       error={errors[field.name]}
                       options={lista}
-                      placeholder={sinOpciones ? field.emptyPlaceholder : undefined}
+                      placeholder={
+                        sinOpciones
+                          ? field.emptyPlaceholder
+                          : listaVacia
+                            ? field.noOptionsPlaceholder
+                            : undefined
+                      }
                       disabled={pending || Boolean(sinOpciones)}
                       onChange={onChange}
                     />

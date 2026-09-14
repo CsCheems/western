@@ -15,6 +15,8 @@ const CELDAS = {
   portada: 'text-admin-muted whitespace-nowrap',
   fecha: 'text-admin-muted whitespace-nowrap',
   imagen: 'py-[6px]',
+  booleano: 'text-admin-muted whitespace-nowrap',
+  lista: 'text-admin-muted',
 }
 
 /**
@@ -39,7 +41,12 @@ function contenido(fila, columna) {
     case 'estado':
       return <AdminBadge estado={valor} />
     case 'portada':
-      return valor ? adminCopy.portadaSi : '—'
+    case 'booleano':
+      return valor ? adminCopy.si : '—'
+    // Los rótulos de un array de `{ id, label }`: las categorías de una marca,
+    // las marcas de una categoría.
+    case 'lista':
+      return valor.length ? valor.map((entrada) => entrada.label).join(', ') : '—'
     // Miniatura 4:5 como la tarjeta del catálogo. Sin foto, una caja vacía del
     // mismo tamaño con su texto para lectores de pantalla: la columna no se
     // encoge y la ausencia se nota de un vistazo.
@@ -67,10 +74,10 @@ function contenido(fila, columna) {
 }
 
 /**
- * La tabla del panel, la misma para el inventario y para los pedidos: las dos se
- * declaran como columnas en data/admin.js y de ahí salen el rótulo, el formato y
- * la alineación. Dos tablas casi iguales acaban divergiendo en el relleno de una
- * celda, y luego nadie sabe cuál de las dos era la buena.
+ * La tabla del panel, la misma para el inventario, los pedidos, las marcas y las
+ * categorías: todas se declaran como columnas en data/admin.js y de ahí salen
+ * el rótulo, el formato y la alineación. Tablas casi iguales acaban divergiendo
+ * en el relleno de una celda, y luego nadie sabe cuál era la buena.
  *
  * `renderActions(fila)`, opcional, añade una última columna con lo que se puede
  * hacer con cada fila —editar, archivar, restaurar—. La tabla no sabe qué
@@ -94,7 +101,11 @@ export function AdminTable({ columns, rows, rowKey, empty, renderActions }) {
 
   return (
     <AdminCard className="overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* `relative` no es de adorno: los textos para lector de pantalla
+          («Acciones», «Sin foto») son `sr-only`, que es `position: absolute`, y
+          sin un ancestro posicionado aquí dentro se escapan del desplazamiento
+          y ensanchan la página entera en un teléfono. */}
+      <div className="relative overflow-x-auto">
         <table className="w-full border-collapse text-left text-[13px]">
           <thead>
             <tr className="border-b border-admin-line bg-admin-canvas">

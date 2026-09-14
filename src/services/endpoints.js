@@ -18,6 +18,8 @@ export const ENDPOINTS = {
   },
   // Países y estados para los desplegables del alta y del perfil. Sin sesión.
   ubicaciones: '/ubicaciones',
+  // Las marcas con algo publicado: menú «Marcas» y banda de la portada. Sin sesión.
+  marcas: '/marcas',
   // Todo lo de aquí va detrás de requireAuth + requireAdmin en el servidor: sin
   // sesión da 401 y con sesión de cliente da 403.
   admin: {
@@ -33,5 +35,8 @@ export const ENDPOINTS = {
     image: (id, imagenId) => `/admin/products/${encodeURIComponent(id)}/imagenes/${imagenId}`,
     principal: (id, imagenId) =>
       `/admin/products/${encodeURIComponent(id)}/imagenes/${imagenId}/principal`,
+    category: (id) => `/admin/categories/${encodeURIComponent(id)}`,
+    brands: '/admin/brands',
+    brand: (id) => `/admin/brands/${encodeURIComponent(id)}`,
   },
 }

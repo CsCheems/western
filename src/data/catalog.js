@@ -1,30 +1,11 @@
 // Copy y estructura de la página de catálogo, con la misma regla que
 // data/auth.js o data/admin.js: las cadenas viven aquí y el JSX las recorre.
 //
-// Los rótulos de las categorías, los géneros y los grados de fieltro NO están en
-// este archivo: llegan del servidor con su cuenta, en `facetas`, por la misma
-// razón que los del panel — son datos del catálogo, no copy de la interfaz.
-//
-// La excepción es `marcas`, aquí abajo, y tiene su motivo escrito.
-
-/**
- * Los seis talleres, espejo de MARCAS en backend/services/catalog.store.js.
- *
- * Se duplica a propósito y por una razón concreta: el navbar se pinta antes de
- * que haya llegado ninguna respuesta, y su menú «Marcas» no puede esperar a las
- * facetas. El panel lateral sí lee los rótulos del servidor.
- *
- * SI CAMBIA UNA, CAMBIA LA OTRA — el mismo trato que backend/validation/rules.js
- * tiene con utils/validation.js.
- */
-export const marcas = [
-  { id: 'bishop-cole', label: 'Bishop & Cole' },
-  { id: 'canon-hats', label: 'Cañón Hats' },
-  { id: 'broncoware', label: 'Broncoware' },
-  { id: 'ferreria-norte', label: 'Ferrería del Norte' },
-  { id: 'sabinal-denim', label: 'Sabinal Denim' },
-  { id: 'old-cavalry', label: 'Old Cavalry' },
-]
+// Los rótulos de las categorías, las marcas, los géneros y los grados de fieltro
+// NO están en este archivo: llegan del servidor con su cuenta, en `facetas`, por
+// la misma razón que los del panel — son datos del catálogo, no copy de la
+// interfaz. Las marcas del menú del navbar y de la portada también: las pide
+// services/marcas.js.
 
 /**
  * El equivalente de services/endpoints.js para las rutas del sitio: ningún

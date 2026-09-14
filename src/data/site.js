@@ -1,5 +1,3 @@
-import { marcas } from './catalog'
-
 export const announcements = [
   'Envío gratis desde $2,500',
   'Cambios sin costo · 30 días',
@@ -19,8 +17,13 @@ export const announcements = [
  * varias categorías —Ropa, Accesorios— lleva un array, que catalogPath convierte
  * en la clave repetida que el catálogo lee con getAll().
  *
- * Las cinco entradas cubren las nueve categorías del inventario: ninguna pieza
- * queda sin puerta desde el navbar.
+ * Las cinco entradas cubren las nueve categorías de la semilla. Una categoría
+ * creada después desde el panel sale sola en los filtros del catálogo, pero no
+ * aquí: en qué menú va es una decisión editorial, no un dato, y hay que añadirla
+ * a mano a uno de estos grupos.
+ *
+ * «Marcas» es la excepción: sus hijos sí son datos, y los pone useNavLinks con
+ * las marcas de la base.
  */
 export const navLinks = [
   { key: 'inicio', label: 'Inicio', to: '/' },
@@ -73,17 +76,12 @@ export const navLinks = [
   {
     key: 'marcas',
     label: 'Marcas',
-    children: marcas.map((taller) => ({ label: taller.label, params: { marca: taller.id } })),
+    // Sin filtro: su «Ver todo» es el catálogo entero, y es lo que el menú
+    // enseña mientras llegan los talleres —o si no llegan—.
+    params: {},
+    children: [],
   },
 ]
-
-// Seis casas de familia entre Texas, Chihuahua y Zacatecas. Nombres ficticios.
-//
-// Se DERIVAN del catálogo de marcas en vez de repetirlos —igual que
-// profileSections deriva de las secciones del alta—: la banda de la portada y el
-// menú del navbar nombran a los mismos talleres, y con dos listas acabarían
-// nombrándolos distinto.
-export const workshops = marcas.map((taller) => taller.label)
 
 export const promises = [
   {

@@ -2,7 +2,6 @@ import { ChevronDown } from 'lucide-react'
 import { useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { catalogCopy, catalogPath } from '../../data/catalog'
-import { navLinks } from '../../data/site'
 
 const ENTRADA =
   'flex w-full items-center justify-between border-b border-transparent py-3 text-left transition-colors hover:border-gold hover:text-gold'
@@ -20,14 +19,17 @@ const HIJO =
  *
  * `closeMenu` cierra el panel entero al navegar: quien pulsa un enlace ya no
  * quiere seguir viendo el menú.
+ *
+ * `links` son los mismos menús del navbar, que ya los pidió: así los dos pintan
+ * los mismos talleres.
  */
-export function NavMobileMenu({ closeMenu }) {
+export function NavMobileMenu({ links, closeMenu }) {
   const [abierto, setAbierto] = useState(null)
   const base = useId()
 
   return (
     <div className="mx-auto flex max-w-shell flex-col">
-      {navLinks.map((item) => {
+      {links.map((item) => {
         if (!item.children) {
           return (
             <Link
