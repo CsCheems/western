@@ -79,8 +79,7 @@ export default function Catalog() {
 
         <section className="bg-paper px-gutter py-[clamp(38px,5vw,72px)] text-ink">
           {/* `scroll-mt` para que al cambiar de página el ancla no quede debajo
-              del navbar pegajoso — el mismo 92px del `lg:top` del raíl, más el
-              aire de la barra de anuncios. */}
+              del navbar pegajoso: sus 92px más el aire de la barra de anuncios. */}
           <div ref={resultadosRef} className="mx-auto max-w-shell scroll-mt-[100px]">
             {status !== 'ready' ? (
               <CatalogState status={status} error={error} onRetry={reload} />
@@ -106,24 +105,20 @@ export default function Catalog() {
                     talabartería» con su cuenta— pide 250px, y con 280 el ancho
                     útil se quedaba en 242 y la etiqueta se cortaba. */}
                 <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-[clamp(24px,2.6vw,44px)]">
-                  {/* `self-start` no es adorno: sin él la columna se estira a lo
-                      alto de la fila y el sticky se queda sin recorrido.
+                  {/* EL RAÍL YA NO ES PEGAJOSO, y no es un descuido. Ahora se pinta
+                      entero —ocho grupos, ~1150px— y eso es más alto que casi
+                      cualquier ventana, así que un `sticky top` lo clavaría con
+                      su último grupo permanentemente fuera de cuadro y sin forma
+                      de alcanzarlo: pegarlo sería peor que no pegarlo. Un
+                      `sticky bottom` tampoco vale, aunque lo parezca —ese tira
+                      del elemento hacia ARRIBA cuando cuelga demasiado, no lo
+                      ancla abajo—, y medido no movía el raíl ni un píxel.
 
-                      SE PEGA POR ABAJO Y NO POR ARRIBA, que es lo que pide un
-                      raíl más alto que la pantalla: el raíl se pinta entero
-                      —ocho grupos, ~1150px— y con `top` quedaría clavado a 92px
-                      del borde con su último grupo permanentemente fuera de
-                      cuadro, sin forma de alcanzarlo. Con `bottom` acompaña al
-                      scroll mientras lo recorres y se ancla cuando su final llega
-                      al pie de la ventana.
-
-                      Y el sticky no puede invadir el footer porque su caja de
-                      contención es la celda de esta retícula: mientras el Frame
-                      no se salga del <aside> —ver CatalogFilters—, el raíl se
-                      detiene donde acaba la fila. */}
+                      `self-start` sí se queda: sin él la columna se estira a lo
+                      alto de la fila y el Frame se estiraría con ella. */}
                   <aside
                     aria-label={catalogCopy.filtros}
-                    className={`${filtrosAbiertos ? 'mb-[28px] block' : 'hidden'} lg:sticky lg:bottom-[20px] lg:mb-0 lg:block lg:self-start`}
+                    className={`${filtrosAbiertos ? 'mb-[28px] block' : 'hidden'} lg:mb-0 lg:block lg:self-start`}
                   >
                     <CatalogFilters
                       facetas={catalogo.facetas}
