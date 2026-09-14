@@ -1,3 +1,4 @@
+import { productFields, productMessages } from '../data/admin'
 import { authFields, validationMessages as MSG } from '../data/auth'
 import { PASSWORD_GROUP, profileEditFields } from '../data/profile'
 
@@ -96,6 +97,52 @@ const PROFILE_WITHOUT_PASSWORD = profileEditFields.filter(
  * Espejo del `optionalGroup` de updateMeSchema en backend/validation/
  * auth.schema.js. Si una regla cambia, cambian las dos.
  */
+// ─── Artículos del panel ───────────────────────────────────────────────────
+//
+// Espejo de productSchema (backend/validation/admin.schema.js) y de sus formatos
+// en backend/validation/rules.js, con los mismos regex y los mismos topes. El
+// invariante de siempre: el cliente puede ser igual o más laxo, nunca más
+// estricto.
+
+const PRECIO = /^\d{1,8}(\.\d{1,2})?$/
+const STOCK = /^\d{1,6}$/
+
+const PRODUCT_FORMAT = {
+  titulo: (value) => (value.length <= 120 ? null : productMessages.tituloLargo),
+  descripcion: (value) => (value.length <= 600 ? null : productMessages.descripcionLarga),
+  precio: (value) => (PRECIO.test(value) && Number(value) > 0 ? null : productMessages.precio),
+  stock: (value) => (STOCK.test(value) ? null : productMessages.stock),
+}
+
+/**
+ * Valida un artículo. `categoria` es la entrada del catálogo que está elegida
+ * (o undefined): decide si el género existe y es obligatorio. Los campos que no
+ * aplican a la categoría no se validan, igual que no se pintan.
+ *
+ * Las casillas no se validan: siempre tienen valor.
+ */
+export function validateProduct(values, categoria) {
+  const errors = {}
+
+  for (const field of productFields) {
+    if (field.type === 'checkbox') continue
+    if (field.visibleIf && !categoria?.[field.visibleIf]) continue
+
+    const value = (values[field.name] ?? '').trim()
+
+    if (!value) {
+      if (field.optional) continue
+      errors[field.name] = field.name === 'genero' ? productMessages.generoFalta : productMessages.required
+      continue
+    }
+
+    const message = PRODUCT_FORMAT[field.name]?.(value)
+    if (message) errors[field.name] = message
+  }
+
+  return errors
+}
+
 export function validateProfile(values) {
   const changingPassword = PASSWORD_GROUP.some((name) => values[name])
 

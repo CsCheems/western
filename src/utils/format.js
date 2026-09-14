@@ -16,11 +16,23 @@ const MONEDA = new Intl.NumberFormat('es-MX', {
   maximumFractionDigits: 0,
 })
 
+// Para los precios con centavos. Desde que el panel los admite, redondear
+// «$2,850.50» a «$2,851» enseñaría un precio que no es el que se cobra.
+const MONEDA_CENTAVOS = new Intl.NumberFormat('es-MX', {
+  style: 'currency',
+  currency: 'MXN',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})
+
 const ENTERO = new Intl.NumberFormat('es-MX')
 
 const FECHA = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short' })
 
-export const formatMoney = (valor) => MONEDA.format(valor)
+// Pesos enteros sin decimales —«$4,290», igual que la portada—, y los dos
+// centavos solo cuando los hay.
+export const formatMoney = (valor) =>
+  (Number.isInteger(valor) ? MONEDA : MONEDA_CENTAVOS).format(valor)
 
 export const formatInteger = (valor) => ENTERO.format(valor)
 

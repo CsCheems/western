@@ -24,7 +24,7 @@ import { AdminTopbar } from './AdminTopbar'
  * dentro de su tarjeta, que es donde toca.
  */
 export function AdminShell() {
-  const { data: categorias } = useApiResource(getCategories)
+  const { data: categorias, reload: recargarCategorias } = useApiResource(getCategories)
 
   return (
     <div className="min-h-screen bg-admin-canvas text-admin-ink">
@@ -41,8 +41,12 @@ export function AdminShell() {
               página de productos tener que esperar a la SUYA para saber cómo se
               llama la categoría que ya está pintada y marcada en el lateral. Sin
               esto, el título dice «Todo el inventario» y salta a «Hebillas y
-              espuelas» un instante después. */}
-          <Outlet context={{ categorias }} />
+              espuelas» un instante después.
+
+              `recargarCategorias` baja por lo mismo: crear, archivar o
+              restaurar cambia las cuentas del lateral, y quien lo sabe es la
+              página que lo hizo. */}
+          <Outlet context={{ categorias, recargarCategorias }} />
         </main>
       </div>
     </div>

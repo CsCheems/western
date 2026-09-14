@@ -14,6 +14,7 @@ const CELDAS = {
   estado: 'whitespace-nowrap',
   portada: 'text-admin-muted whitespace-nowrap',
   fecha: 'text-admin-muted whitespace-nowrap',
+  imagen: 'py-[6px]',
 }
 
 /**
@@ -39,6 +40,23 @@ function contenido(fila, columna) {
       return <AdminBadge estado={valor} />
     case 'portada':
       return valor ? adminCopy.portadaSi : '—'
+    // Miniatura 4:5 como la tarjeta del catálogo. Sin foto, una caja vacía del
+    // mismo tamaño con su texto para lectores de pantalla: la columna no se
+    // encoge y la ausencia se nota de un vistazo.
+    case 'imagen':
+      return valor ? (
+        <img
+          src={valor}
+          alt=""
+          loading="lazy"
+          className="h-[40px] w-[32px] rounded-admin border border-admin-line bg-admin-canvas object-cover"
+        />
+      ) : (
+        <span className="grid h-[40px] w-[32px] place-items-center rounded-admin border border-dashed border-admin-line text-admin-muted">
+          <span className="sr-only">{adminCopy.sinFoto}</span>
+          <span aria-hidden="true">—</span>
+        </span>
+      )
     case 'stock':
       return (
         <span className={valor === 0 ? 'text-admin-warn' : undefined}>{formatInteger(valor)}</span>
@@ -54,15 +72,18 @@ function contenido(fila, columna) {
  * la alineación. Dos tablas casi iguales acaban divergiendo en el relleno de una
  * celda, y luego nadie sabe cuál de las dos era la buena.
  *
- * Todas son de SOLO LECTURA. No hay editar, crear ni borrar, y es a propósito:
- * escribir contra un mock en memoria da la impresión de que algo se guardó.
+ * `renderActions(fila)`, opcional, añade una última columna con lo que se puede
+ * hacer con cada fila —editar, archivar, restaurar—. La tabla no sabe qué
+ * acciones hay ni qué hacen: las pinta quien la usa, que es quien tiene los
+ * datos y las peticiones. Los pedidos del resumen no la pasan y siguen siendo de
+ * solo lectura.
  *
  * Una tabla ancha no cabe en un teléfono y no se intenta que quepa: se desplaza
  * dentro de su propia tarjeta —de ahí el overflow-x-auto—, que es lo que impide
  * que arrastre a la página entera en horizontal. Reventar las filas en tarjetas
  * apiladas pierde justo lo que se venía a hacer, que es comparar una columna.
  */
-export function AdminTable({ columns, rows, rowKey, empty }) {
+export function AdminTable({ columns, rows, rowKey, empty, renderActions }) {
   if (rows.length === 0) {
     return (
       <AdminCard className="grid min-h-[120px] place-items-center p-6">
@@ -86,6 +107,11 @@ export function AdminTable({ columns, rows, rowKey, empty }) {
                   {columna.label}
                 </th>
               ))}
+              {renderActions && (
+                <th scope="col" className="px-4 py-[10px] text-right">
+                  <span className="sr-only">{adminCopy.acciones}</span>
+                </th>
+              )}
             </tr>
           </thead>
 
@@ -103,6 +129,11 @@ export function AdminTable({ columns, rows, rowKey, empty }) {
                     {contenido(fila, columna)}
                   </td>
                 ))}
+                {renderActions && (
+                  <td className="px-4 py-[8px] text-right whitespace-nowrap">
+                    <div className="inline-flex gap-[6px]">{renderActions(fila)}</div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -1,7 +1,9 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthProvider'
 import { ToastProvider } from './context/ToastProvider'
+import AdminArchivados from './page/Admin/Archivados/page'
 import Admin from './page/Admin/page'
+import AdminProducto from './page/Admin/Producto/page'
 import AdminProductos from './page/Admin/Productos/page'
 import AdminResumen from './page/Admin/Resumen/page'
 import Catalog from './page/Catalog/page'
@@ -32,7 +34,14 @@ export default function App() {
             <Route path="/admin" element={<Admin />}>
               <Route index element={<AdminResumen />} />
               <Route path="productos" element={<AdminProductos />} />
+              {/* «nuevo» es un segmento fijo y el router lo prefiere sobre
+                  `:categoria`, así que no hay que ordenar nada. Una categoría
+                  que se llamara «nuevo» quedaría tapada: no existe, y el slug
+                  de las categorías lo decide la semilla SQL. */}
+              <Route path="productos/nuevo" element={<AdminProducto />} />
               <Route path="productos/:categoria" element={<AdminProductos />} />
+              <Route path="articulos/:id" element={<AdminProducto />} />
+              <Route path="archivados" element={<AdminArchivados />} />
             </Route>
           </Routes>
         </AuthProvider>

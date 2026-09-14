@@ -23,6 +23,15 @@ export const ENDPOINTS = {
   admin: {
     summary: '/admin/summary',
     categories: '/admin/categories',
+    catalogos: '/admin/catalogos',
     products: '/admin/products',
+    // El slug va codificado aunque hoy solo lleve [a-z0-9-]: la ruta la compone
+    // este archivo, y no debería depender de lo que la base decida admitir.
+    product: (id) => `/admin/products/${encodeURIComponent(id)}`,
+    restore: (id) => `/admin/products/${encodeURIComponent(id)}/restaurar`,
+    images: (id) => `/admin/products/${encodeURIComponent(id)}/imagenes`,
+    image: (id, imagenId) => `/admin/products/${encodeURIComponent(id)}/imagenes/${imagenId}`,
+    principal: (id, imagenId) =>
+      `/admin/products/${encodeURIComponent(id)}/imagenes/${imagenId}/principal`,
   },
 }
