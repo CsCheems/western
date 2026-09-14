@@ -79,19 +79,29 @@ export const authViews = {
       {
         title: 'Dirección de envío',
         fields: [
+          // País y estado se eligen de una lista (el catálogo de la base de
+          // datos, vía useUbicaciones). `options` dice de qué lista sale cada
+          // uno, `dependsOn` que los estados son los del país elegido, y
+          // `defaultValue` que el país ya viene puesto: hoy solo se envía a
+          // México. El `autoComplete` se queda para cuando la lista no carga y el
+          // campo vuelve a ser de texto.
           {
             name: 'pais',
             label: 'País',
-            type: 'text',
-            placeholder: 'México',
+            type: 'select',
+            options: 'paises',
+            defaultValue: 'México',
+            placeholder: 'Elige tu país',
             autoComplete: 'country-name',
             half: true,
           },
           {
             name: 'estado',
             label: 'Estado',
-            type: 'text',
-            placeholder: 'Nuevo León',
+            type: 'select',
+            options: 'estados',
+            dependsOn: 'pais',
+            placeholder: 'Elige tu estado',
             autoComplete: 'address-level1',
             half: true,
           },

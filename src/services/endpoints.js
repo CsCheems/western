@@ -16,6 +16,8 @@ export const ENDPOINTS = {
     list: '/products',
     detail: (id) => `/products/${id}`,
   },
+  // Países y estados para los desplegables del alta y del perfil. Sin sesión.
+  ubicaciones: '/ubicaciones',
   // Todo lo de aquí va detrás de requireAuth + requireAdmin en el servidor: sin
   // sesión da 401 y con sesión de cliente da 403.
   admin: {

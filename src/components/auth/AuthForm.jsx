@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { authToasts, authViews } from '../../data/auth'
+import { authFields, authToasts, authViews } from '../../data/auth'
 import { useAuthForm } from '../../hooks/useAuthForm'
+import { useUbicaciones } from '../../hooks/useUbicaciones'
 import { Button } from '../ui/Button'
 import { Field } from '../ui/Field'
 
@@ -47,6 +48,9 @@ export function AuthForm({ view, titleId }) {
     onInvalid,
   })
 
+  // País y estado. En el login no hay listas y el hook no sale a la red.
+  const ubicaciones = useUbicaciones(authFields[view])
+
   return (
     <form ref={formRef} onSubmit={handleSubmit} aria-busy={pending} noValidate>
       <span className="block text-[12px] tracking-kicker text-gold uppercase">{copy.kicker}</span>
@@ -74,7 +78,7 @@ export function AuthForm({ view, titleId }) {
                 value={values[field.name]}
                 error={errors[field.name]}
                 disabled={pending}
-                onChange={handleChange}
+                {...ubicaciones.propsFor(field, values, handleChange)}
               />
             ))}
           </div>

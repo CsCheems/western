@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import {
   profileCopy,
+  profileEditFields,
   profileEditSections,
   profileSections,
   profileToasts,
@@ -10,6 +11,7 @@ import {
   toFormValues,
 } from '../../data/profile'
 import { useForm } from '../../hooks/useForm'
+import { useUbicaciones } from '../../hooks/useUbicaciones'
 import { validateProfile } from '../../utils/validation'
 import { Button } from '../ui/Button'
 import { Field } from '../ui/Field'
@@ -101,6 +103,10 @@ function ProfileEditor({ user, onDone }) {
     onInvalid,
   })
 
+  // Las listas de país y estado. La consulta no las necesita —en solo lectura
+  // son texto—, así que solo se piden al entrar en edición.
+  const ubicaciones = useUbicaciones(profileEditFields)
+
   // Al entrar en edición el foco va al primer campo: quien pulsó «Editar datos»
   // quiere escribir, y el formulario está más abajo en la página.
   useEffect(() => {
@@ -129,7 +135,7 @@ function ProfileEditor({ user, onDone }) {
               error={errors[field.name]}
               readOnly={field.readOnly}
               disabled={pending}
-              onChange={handleChange}
+              {...ubicaciones.propsFor(field, values, handleChange)}
             />
           ))}
         </FieldSection>

@@ -3,7 +3,9 @@ import { authFields } from '../data/auth'
 import { validate } from '../utils/validation'
 import { useForm } from './useForm'
 
-const emptyValues = (view) => Object.fromEntries(authFields[view].map((f) => [f.name, '']))
+// Vacío, salvo lo que el campo declara como valor de partida (el país).
+const emptyValues = (view) =>
+  Object.fromEntries(authFields[view].map((f) => [f.name, f.defaultValue ?? '']))
 
 /**
  * El formulario del modal de acceso: useForm con los valores vacíos de la vista
